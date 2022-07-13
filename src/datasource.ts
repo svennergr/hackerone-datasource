@@ -1,9 +1,9 @@
 import { DataSourceInstanceSettings } from '@grafana/data';
 import { DataSourceWithBackend } from '@grafana/runtime';
-import { MyDataSourceOptions, MyQuery } from './types';
+import { HackeroneOptions, HackeroneQuery } from './types';
 
-export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptions> {
-  constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
+export class DataSource extends DataSourceWithBackend<HackeroneQuery, HackeroneOptions> {
+  constructor(instanceSettings: DataSourceInstanceSettings<HackeroneOptions>) {
     super(instanceSettings);
   }
 }

@@ -28,3 +28,4 @@ e2e-results/
 
 # Editor
 .idea
+pkg/__debug_bin

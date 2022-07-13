@@ -9,7 +9,6 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
-	"github.com/grafana/grafana-plugin-sdk-go/live"
 	"github.com/liamg/hackerone"
 	"github.com/liamg/hackerone/pkg/api"
 )
@@ -62,7 +61,7 @@ func parseSettings(context backend.PluginContext) (dataSourceSettings, error) {
 	if err := json.Unmarshal(context.DataSourceInstanceSettings.JSONData, &jsonsettings); err != nil {
 		return dataSourceSettings{}, err
 	}
-	
+
 	apiKey := context.DataSourceInstanceSettings.DecryptedSecureJSONData["apiKey"]
 
 	settings.ApiKey = apiKey
@@ -94,12 +93,12 @@ func (d *HackeroneDatasource) QueryData(ctx context.Context, req *backend.QueryD
 }
 
 type queryModel struct {
-	WithStreaming bool `json:"withStreaming"`
+	QueryType string `json:"type"`
 }
 
 func (d *HackeroneDatasource) query(_ context.Context, pCtx backend.PluginContext, query backend.DataQuery) backend.DataResponse {
 	response := backend.DataResponse{}
-	
+
 	settings, err := parseSettings(pCtx)
 
 	log.DefaultLogger.Info("settings", "request", settings)
@@ -111,15 +110,6 @@ func (d *HackeroneDatasource) query(_ context.Context, pCtx backend.PluginContex
 		return response
 	}
 
-	h1 := hackerone.New(settings.UserName, settings.ApiKey)
-	earnings, _, err := h1.Hackers.GetEarnings(context.TODO(), &api.PageOptions{PageNumber: 0})
-	if err != nil {
-		response.Error = err
-		return response
-	}
-
-	log.DefaultLogger.Info("earnings", "request", earnings)
-
 	// Unmarshal the JSON into our queryModel.
 	var qm queryModel
 
@@ -128,45 +118,124 @@ func (d *HackeroneDatasource) query(_ context.Context, pCtx backend.PluginContex
 		return response
 	}
 
-	// create data frame response.
-	frame := data.NewFrame("response")
+	h1 := hackerone.New(settings.UserName, settings.ApiKey)
+	earnings, _, err := h1.Hackers.GetEarnings(context.TODO(), &api.PageOptions{PageNumber: 0})
+	if err != nil {
+		response.Error = err
+		return response
+	}
 
-	times := []time.Time{}
-	values := []float64{}
-	for _, earning := range earnings {
-		time, err := time.Parse("2006-01-02T15:04:05.000Z", earning.Attributes.CreatedAt)
+	if qm.QueryType == "earnings" {
+		// create data frame response.
+		frame := data.NewFrame("earnings")
+
+		times := []time.Time{}
+		values := []float64{}
+		for _, earning := range earnings {
+			time, err := time.Parse("2006-01-02T15:04:05.000Z", earning.Attributes.CreatedAt)
+			if err != nil {
+				response.Error = err
+				return response
+			}
+			if !d.inTime(time, query.TimeRange) {
+				continue
+			}
+			times = append(times, time)
+			values = append(values, earning.Attributes.Amount)
+		}
+
+		// add fields.
+		frame.Fields = append(frame.Fields,
+			data.NewField("time", nil, times),
+			data.NewField("values", nil, values),
+		)
+
+		response.Frames = append(response.Frames, frame)
+	} else if qm.QueryType == "payouts" {
+
+		payouts, _, err := h1.Hackers.GetPayouts(context.TODO(), &api.PageOptions{PageNumber: 0})
 		if err != nil {
 			response.Error = err
 			return response
 		}
 
-		times = append(times, time)
+		// create data frame response.
+		frame := data.NewFrame("payouts")
 
-		values = append(values, earning.Attributes.Amount)
-	}
-
-	// add fields.
-	frame.Fields = append(frame.Fields,
-		data.NewField("time", nil, times),
-		data.NewField("values", nil, values),
-	)
-
-	// If query called with streaming on then return a channel
-	// to subscribe on a client-side and consume updates from a plugin.
-	// Feel free to remove this if you don't need streaming for your datasource.
-	if qm.WithStreaming {
-		channel := live.Channel{
-			Scope:     live.ScopeDatasource,
-			Namespace: pCtx.DataSourceInstanceSettings.UID,
-			Path:      "stream",
+		times := []time.Time{}
+		values := []float64{}
+		for _, payout := range payouts {
+			if !d.inTime(payout.PaidOutAt, query.TimeRange) {
+				continue
+			}
+			times = append(times, payout.PaidOutAt)
+			values = append(values, float64(payout.Amount))
 		}
-		frame.SetMeta(&data.FrameMeta{Channel: channel.String()})
-	}
 
-	// add the frames to the response.
-	response.Frames = append(response.Frames, frame)
+		// add fields.
+		frame.Fields = append(frame.Fields,
+			data.NewField("time", nil, times),
+			data.NewField("values", nil, values),
+		)
+
+		response.Frames = append(response.Frames, frame)
+	}
+	// reports, _, err := h1.Hackers.GetReports(context.TODO(), &api.PageOptions{PageNumber: 0})
+	// if err != nil {
+	// 	response.Error = err
+	// 	return response
+	// }
+
+	// response.Frames = append(response.Frames, frame)
+
+	// // create data frame response.
+	// frame = data.NewFrame("reports_created")
+
+	// times = []time.Time{}
+	// values = []float64{}
+	// for _, report := range reports {
+	// 	if report.Attributes.CreatedAt.Before(t) {
+	// 		continue
+	// 	}
+	// 	times = append(times, report.Attributes.CreatedAt)
+	// 	values = append(values, float64(1))
+	// }
+
+	// // add fields.
+	// frame.Fields = append(frame.Fields,
+	// 	data.NewField("time", nil, times),
+	// 	data.NewField("values", nil, values),
+	// )
+
+	// response.Frames = append(response.Frames, frame)
+
+	// // create data frame response.
+	// frame = data.NewFrame("reports_closed")
+
+	// times = []time.Time{}
+	// values = []float64{}
+	// for _, report := range reports {
+	// 	if report.Attributes.ClosedAt.Before(t) {
+	// 		continue
+	// 	}
+
+	// 	times = append(times, report.Attributes.ClosedAt)
+	// 	values = append(values, float64(1))
+	// }
+
+	// // add fields.
+	// frame.Fields = append(frame.Fields,
+	// 	data.NewField("time", nil, times),
+	// 	data.NewField("values", nil, values),
+	// )
+
+	// response.Frames = append(response.Frames, frame)
 
 	return response
+}
+
+func (d *HackeroneDatasource) inTime(time time.Time, q backend.TimeRange) bool {
+	return time.After(q.From) && time.Before(q.To)
 }
 
 // CheckHealth handles health checks sent from Grafana to the plugin.
