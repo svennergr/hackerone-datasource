@@ -4,18 +4,13 @@ import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { ActionMeta, Select } from '@grafana/ui';
 import React, { PureComponent } from 'react';
 import { DataSource } from './datasource';
-import { defaultQuery, HackeroneOptions, HackeroneQuery, typeOptions } from './types';
+import { defaultQuery, HackeroneOptions, HackeroneQuery, typeOptions, isValidType } from './types';
 
 type Props = QueryEditorProps<DataSource, HackeroneQuery, HackeroneOptions>;
 
 export class QueryEditor extends PureComponent<Props> {
   onTypeChange = (value: SelectableValue<string>, actionMeta: ActionMeta) => {
-    if (
-      value.value !== 'earnings' &&
-      value.value !== 'payouts' &&
-      value.value !== 'payouts-cumulative' &&
-      value.value !== 'reports'
-    ) {
+    if (!isValidType(value.value)) {
       return;
     }
 

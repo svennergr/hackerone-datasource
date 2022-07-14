@@ -145,7 +145,6 @@ func (d *HackeroneDatasource) query(_ context.Context, pCtx backend.PluginContex
 			values = append(values, earning.Attributes.Amount+0.01)
 		}
 
-		// add fields.
 		frame.Fields = append(frame.Fields,
 			data.NewField("time", nil, times),
 			data.NewField("values", nil, values),
@@ -175,7 +174,6 @@ func (d *HackeroneDatasource) query(_ context.Context, pCtx backend.PluginContex
 			values = append(values, payout.Amount)
 		}
 
-		// add fields.
 		frame.Fields = append(frame.Fields,
 			data.NewField("time", nil, times),
 			data.NewField("values", nil, values),
@@ -209,7 +207,6 @@ func (d *HackeroneDatasource) query(_ context.Context, pCtx backend.PluginContex
 			values = append(values, payoutBefore+payout.Amount)
 		}
 
-		// add fields.
 		frame.Fields = append(frame.Fields,
 			data.NewField("time", nil, times),
 			data.NewField("values", nil, values),
@@ -227,53 +224,52 @@ func (d *HackeroneDatasource) query(_ context.Context, pCtx backend.PluginContex
 		frame := data.NewFrame("reports")
 
 		times := []time.Time{}
-		types := []string{}
 		titles := []string{}
 		tags := []string{}
-		//bounty_dates := []time.Time{}
 		for _, report := range reports {
 			if report.Attributes.BountyAwardedAt == nil || !d.inTime(*report.Attributes.BountyAwardedAt, query.TimeRange) {
 				continue
 			}
 			times = append(times, *report.Attributes.BountyAwardedAt)
-			types = append(types, report.Type)
 			titles = append(titles, report.Attributes.Title)
 			tags = append(tags, *&report.Relationships.Program.Data.Attributes.Handle)
-			//bounty_dates = append(bounty_dates, *report.Attributes.BountyAwardedAt)
 		}
 
-		// add fields.
 		frame.Fields = append(frame.Fields,
 			data.NewField("time", nil, times),
-			data.NewField("types", nil, types),
 			data.NewField("titles", nil, titles),
 			data.NewField("tags", nil, tags),
-			//data.NewField("bounty_date", nil, bounty_dates),
+		)
+
+		response.Frames = append(response.Frames, frame)
+	} else if qm.QueryType == "reports-raw" {
+		reports, _, err := h1.Hackers.GetReports(context.TODO(), &api.PageOptions{PageNumber: 0})
+		if err != nil {
+			response.Error = err
+			return response
+		}
+
+		// create data frame response.
+		frame := data.NewFrame("reports-raw")
+
+		times := []time.Time{}
+		jsons := []string{}
+		for _, report := range reports {
+			if report.Attributes.BountyAwardedAt == nil || !d.inTime(*report.Attributes.BountyAwardedAt, query.TimeRange) {
+				continue
+			}
+
+			r, _ := json.Marshal(report)
+			times = append(times, *report.Attributes.BountyAwardedAt)
+			jsons = append(jsons, string(r))
+		}
+		frame.Fields = append(frame.Fields,
+			data.NewField("time", nil, times),
+			data.NewField("json", nil, jsons),
 		)
 
 		response.Frames = append(response.Frames, frame)
 	}
-	// // create data frame response.
-	// frame = data.NewFrame("reports_closed")
-
-	// times = []time.Time{}
-	// values = []float64{}
-	// for _, report := range reports {
-	// 	if report.Attributes.ClosedAt.Before(t) {
-	// 		continue
-	// 	}
-
-	// 	times = append(times, report.Attributes.ClosedAt)
-	// 	values = append(values, float64(1))
-	// }
-
-	// // add fields.
-	// frame.Fields = append(frame.Fields,
-	// 	data.NewField("time", nil, times),
-	// 	data.NewField("values", nil, values),
-	// )
-
-	// response.Frames = append(response.Frames, frame)
 
 	return response
 }

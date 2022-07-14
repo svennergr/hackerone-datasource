@@ -10,9 +10,9 @@
     "description": "Plugin to import HackerOne information into Grafana.",
     "author": {
       "name": "Sven Grossmann",
-      "url": ""
+      "url": "https://github.com/svennergr"
     },
-    "keywords": [],
+    "keywords": ["hack", "hackerone", "bug bounty"],
     "logos": {
       "small": "img/logo.svg",
       "large": "img/logo.svg"
@@ -20,11 +20,11 @@
     "links": [
       {
         "name": "Website",
-        "url": "https://github.com/grafana/grafana-starter-datasource-backend"
+        "url": "https://github.com/svennergr/hackerone-datasource"
       },
       {
         "name": "License",
-        "url": "https://github.com/grafana/grafana-starter-datasource-backend/blob/master/LICENSE"
+        "url": "https://github.com/svennergr/hackerone-datasource/blob/main/LICENSE"
       }
     ],
     "screenshots": [],
@@ -33,7 +33,7 @@
   },
   "annotations": true,
   "dependencies": {
-    "grafanaDependency": ">=7.0.0",
+    "grafanaDependency": ">=9.0.0",
     "plugins": []
   }
 }

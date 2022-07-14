@@ -1,22 +1,25 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
-export interface HackeroneQuery extends DataQuery {
-  type: 'earnings' | 'payouts' | 'payouts-cumulative' | 'reports';
-}
+export type QueryType = 'earnings' | 'payouts' | 'payouts-cumulative' | 'reports';
 
 export const typeOptions = [
-  { label: 'earnings', value: 'earnings' },
-  { label: 'payouts', value: 'payouts' },
-  { label: 'payouts-cumulative', value: 'payouts-cumulative' },
-  { label: 'reports', value: 'reports' },
+  { label: 'Earnings', value: 'earnings' },
+  { label: 'Payouts', value: 'payouts' },
+  { label: 'Cumulative Payouts', value: 'payouts-cumulative' },
+  { label: 'Reports', value: 'reports' },
+  { label: 'Reports (JSON)', value: 'reports-raw' },
 ];
 
-export function validType(type: string) {
-  return typeOptions.find((option) => option.value === type);
+export interface HackeroneQuery extends DataQuery {
+  type: QueryType;
+}
+
+export function isValidType(type: string | undefined): type is QueryType {
+  return typeOptions.some((option) => option.value === type);
 }
 
 export const defaultQuery: Partial<HackeroneQuery> = {
-  type: 'payouts',
+  type: 'reports',
 };
 
 /**
