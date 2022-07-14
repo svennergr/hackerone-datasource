@@ -10,7 +10,12 @@ type Props = QueryEditorProps<DataSource, HackeroneQuery, HackeroneOptions>;
 
 export class QueryEditor extends PureComponent<Props> {
   onTypeChange = (value: SelectableValue<string>, actionMeta: ActionMeta) => {
-    if (value.value !== 'earnings' && value.value !== 'payouts') {
+    if (
+      value.value !== 'earnings' &&
+      value.value !== 'payouts' &&
+      value.value !== 'payouts-cumulative' &&
+      value.value !== 'reports'
+    ) {
       return;
     }
 

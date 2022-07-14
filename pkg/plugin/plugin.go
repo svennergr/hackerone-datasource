@@ -131,7 +131,8 @@ func (d *HackeroneDatasource) query(_ context.Context, pCtx backend.PluginContex
 
 		times := []time.Time{}
 		values := []float64{}
-		for _, earning := range earnings {
+		for i := len(earnings) - 1; i >= 0; i-- {
+			earning := earnings[i]
 			time, err := time.Parse("2006-01-02T15:04:05.000Z", earning.Attributes.CreatedAt)
 			if err != nil {
 				response.Error = err
@@ -141,7 +142,7 @@ func (d *HackeroneDatasource) query(_ context.Context, pCtx backend.PluginContex
 				continue
 			}
 			times = append(times, time)
-			values = append(values, earning.Attributes.Amount)
+			values = append(values, earning.Attributes.Amount+0.01)
 		}
 
 		// add fields.
@@ -163,13 +164,15 @@ func (d *HackeroneDatasource) query(_ context.Context, pCtx backend.PluginContex
 		frame := data.NewFrame("payouts")
 
 		times := []time.Time{}
-		values := []float64{}
-		for _, payout := range payouts {
+		values := []float32{}
+
+		for i := len(payouts) - 1; i >= 0; i-- {
+			payout := payouts[i]
 			if !d.inTime(payout.PaidOutAt, query.TimeRange) {
 				continue
 			}
 			times = append(times, payout.PaidOutAt)
-			values = append(values, float64(payout.Amount))
+			values = append(values, payout.Amount)
 		}
 
 		// add fields.
@@ -179,36 +182,77 @@ func (d *HackeroneDatasource) query(_ context.Context, pCtx backend.PluginContex
 		)
 
 		response.Frames = append(response.Frames, frame)
+	} else if qm.QueryType == "payouts-cumulative" {
+
+		payouts, _, err := h1.Hackers.GetPayouts(context.TODO(), &api.PageOptions{PageNumber: 0})
+		if err != nil {
+			response.Error = err
+			return response
+		}
+
+		// create data frame response.
+		frame := data.NewFrame("payouts-cumulative")
+
+		times := []time.Time{}
+		values := []float32{}
+
+		payoutBefore := float32(0.0)
+		for i := len(payouts) - 1; i >= 0; i-- {
+			payout := payouts[i]
+			if len(values) > 0 {
+				payoutBefore = values[len(values)-1]
+			}
+			if !d.inTime(payout.PaidOutAt, query.TimeRange) {
+				continue
+			}
+			times = append(times, payout.PaidOutAt)
+			values = append(values, payoutBefore+payout.Amount)
+		}
+
+		// add fields.
+		frame.Fields = append(frame.Fields,
+			data.NewField("time", nil, times),
+			data.NewField("values", nil, values),
+		)
+
+		response.Frames = append(response.Frames, frame)
+	} else if qm.QueryType == "reports" {
+		reports, _, err := h1.Hackers.GetReports(context.TODO(), &api.PageOptions{PageNumber: 0})
+		if err != nil {
+			response.Error = err
+			return response
+		}
+
+		// create data frame response.
+		frame := data.NewFrame("reports")
+
+		times := []time.Time{}
+		types := []string{}
+		titles := []string{}
+		tags := []string{}
+		//bounty_dates := []time.Time{}
+		for _, report := range reports {
+			if report.Attributes.BountyAwardedAt == nil || !d.inTime(*report.Attributes.BountyAwardedAt, query.TimeRange) {
+				continue
+			}
+			times = append(times, *report.Attributes.BountyAwardedAt)
+			types = append(types, report.Type)
+			titles = append(titles, report.Attributes.Title)
+			tags = append(tags, *&report.Relationships.Program.Data.Attributes.Handle)
+			//bounty_dates = append(bounty_dates, *report.Attributes.BountyAwardedAt)
+		}
+
+		// add fields.
+		frame.Fields = append(frame.Fields,
+			data.NewField("time", nil, times),
+			data.NewField("types", nil, types),
+			data.NewField("titles", nil, titles),
+			data.NewField("tags", nil, tags),
+			//data.NewField("bounty_date", nil, bounty_dates),
+		)
+
+		response.Frames = append(response.Frames, frame)
 	}
-	// reports, _, err := h1.Hackers.GetReports(context.TODO(), &api.PageOptions{PageNumber: 0})
-	// if err != nil {
-	// 	response.Error = err
-	// 	return response
-	// }
-
-	// response.Frames = append(response.Frames, frame)
-
-	// // create data frame response.
-	// frame = data.NewFrame("reports_created")
-
-	// times = []time.Time{}
-	// values = []float64{}
-	// for _, report := range reports {
-	// 	if report.Attributes.CreatedAt.Before(t) {
-	// 		continue
-	// 	}
-	// 	times = append(times, report.Attributes.CreatedAt)
-	// 	values = append(values, float64(1))
-	// }
-
-	// // add fields.
-	// frame.Fields = append(frame.Fields,
-	// 	data.NewField("time", nil, times),
-	// 	data.NewField("values", nil, values),
-	// )
-
-	// response.Frames = append(response.Frames, frame)
-
 	// // create data frame response.
 	// frame = data.NewFrame("reports_closed")
 

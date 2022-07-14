@@ -1,12 +1,14 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
 export interface HackeroneQuery extends DataQuery {
-  type: 'earnings' | 'payouts';
+  type: 'earnings' | 'payouts' | 'payouts-cumulative' | 'reports';
 }
 
 export const typeOptions = [
   { label: 'earnings', value: 'earnings' },
   { label: 'payouts', value: 'payouts' },
+  { label: 'payouts-cumulative', value: 'payouts-cumulative' },
+  { label: 'reports', value: 'reports' },
 ];
 
 export function validType(type: string) {
