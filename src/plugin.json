@@ -1,11 +1,11 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "datasource",
-  "name": "hackerone-plugin",
-  "id": "svennergr-hackerone-plugin",
+  "name": "hackerone-datasource",
+  "id": "svennergr-hackerone-datasource",
   "metrics": true,
   "backend": true,
-  "executable": "gpx_hackerone-plugin",
+  "executable": "gpx_hackerone-datasource",
   "info": {
     "description": "Plugin to import HackerOne information into Grafana.",
     "author": {

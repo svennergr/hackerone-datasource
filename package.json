@@ -1,5 +1,5 @@
 {
-  "name": "svennergr-hackerone-plugin",
+  "name": "svennergr-hackerone-datasource",
   "version": "1.0.0",
   "description": "Plugin to import HackerOne information into Grafana.",
   "scripts": {
