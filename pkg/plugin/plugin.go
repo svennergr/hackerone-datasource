@@ -75,8 +75,6 @@ func parseSettings(context backend.PluginContext) (dataSourceSettings, error) {
 // The QueryDataResponse contains a map of RefID to the response for each query, and each response
 // contains Frames ([]*Frame).
 func (d *HackeroneDatasource) QueryData(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
-	log.DefaultLogger.Info("QueryData called", "request", req)
-
 	// create response struct
 	response := backend.NewQueryDataResponse()
 
@@ -100,8 +98,6 @@ func (d *HackeroneDatasource) query(_ context.Context, pCtx backend.PluginContex
 	response := backend.DataResponse{}
 
 	settings, err := parseSettings(pCtx)
-
-	log.DefaultLogger.Info("settings", "request", settings)
 
 	if err != nil {
 		log.DefaultLogger.Error("settings error", "request", err.Error())
@@ -213,6 +209,35 @@ func (d *HackeroneDatasource) query(_ context.Context, pCtx backend.PluginContex
 		)
 
 		response.Frames = append(response.Frames, frame)
+	} else if qm.QueryType == "reports-bounty" {
+		reports, _, err := h1.Hackers.GetReports(context.TODO(), &api.PageOptions{PageNumber: 0})
+		if err != nil {
+			response.Error = err
+			return response
+		}
+
+		// create data frame response.
+		frame := data.NewFrame("reports-bounty")
+
+		times := []time.Time{}
+		titles := []string{}
+		tags := []string{}
+		for _, report := range reports {
+			if report.Attributes.BountyAwardedAt == nil || !d.inTime(*report.Attributes.BountyAwardedAt, query.TimeRange) {
+				continue
+			}
+			times = append(times, *report.Attributes.BountyAwardedAt)
+			titles = append(titles, report.Attributes.Title)
+			tags = append(tags, *&report.Relationships.Program.Data.Attributes.Handle)
+		}
+
+		frame.Fields = append(frame.Fields,
+			data.NewField("time", nil, times),
+			data.NewField("titles", nil, titles),
+			data.NewField("tags", nil, tags),
+		)
+
+		response.Frames = append(response.Frames, frame)
 	} else if qm.QueryType == "reports" {
 		reports, _, err := h1.Hackers.GetReports(context.TODO(), &api.PageOptions{PageNumber: 0})
 		if err != nil {
@@ -227,10 +252,10 @@ func (d *HackeroneDatasource) query(_ context.Context, pCtx backend.PluginContex
 		titles := []string{}
 		tags := []string{}
 		for _, report := range reports {
-			if report.Attributes.BountyAwardedAt == nil || !d.inTime(*report.Attributes.BountyAwardedAt, query.TimeRange) {
+			if !d.inTime(report.Attributes.CreatedAt, query.TimeRange) {
 				continue
 			}
-			times = append(times, *report.Attributes.BountyAwardedAt)
+			times = append(times, report.Attributes.CreatedAt)
 			titles = append(titles, report.Attributes.Title)
 			tags = append(tags, *&report.Relationships.Program.Data.Attributes.Handle)
 		}

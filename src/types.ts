@@ -1,12 +1,13 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
-export type QueryType = 'earnings' | 'payouts' | 'payouts-cumulative' | 'reports';
+export type QueryType = 'earnings' | 'payouts' | 'payouts-cumulative' | 'reports' | 'reports-bounty';
 
 export const typeOptions = [
   { label: 'Earnings', value: 'earnings' },
   { label: 'Payouts', value: 'payouts' },
   { label: 'Cumulative Payouts', value: 'payouts-cumulative' },
   { label: 'Reports', value: 'reports' },
+  { label: 'Reports with Bounty', value: 'reports-bounty' },
   { label: 'Reports (JSON)', value: 'reports-raw' },
 ];
 
