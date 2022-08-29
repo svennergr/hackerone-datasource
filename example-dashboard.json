@@ -1,4 +1,77 @@
 {
+  "__inputs": [
+    {
+      "name": "DS_HACKERONE-DATASOURCE",
+      "label": "hackerone-datasource",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "svennergr-hackerone-datasource",
+      "pluginName": "hackerone-datasource"
+    },
+    {
+      "name": "DS_EXPRESSION",
+      "label": "Expression",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "__expr__"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "datasource",
+      "id": "__expr__",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "barchart",
+      "name": "Bar chart",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "bargauge",
+      "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "9.2.0-pre"
+    },
+    {
+      "type": "panel",
+      "id": "piechart",
+      "name": "Pie chart",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "svennergr-hackerone-datasource",
+      "name": "hackerone-datasource",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
   "annotations": {
     "list": [
       {
@@ -22,7 +95,7 @@
       {
         "datasource": {
           "type": "svennergr-hackerone-datasource",
-          "uid": "kB9HiKR4z"
+          "uid": "${DS_HACKERONE-DATASOURCE}"
         },
         "enable": true,
         "iconColor": "red",
@@ -45,7 +118,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": null,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -107,7 +180,7 @@
             {
               "datasource": {
                 "type": "svennergr-hackerone-datasource",
-                "uid": "kB9HiKR4z"
+                "uid": "${DS_HACKERONE-DATASOURCE}"
               },
               "hide": true,
               "refId": "A",
@@ -115,9 +188,8 @@
             },
             {
               "datasource": {
-                "name": "Expression",
                 "type": "__expr__",
-                "uid": "__expr__"
+                "uid": "${DS_EXPRESSION}"
               },
               "expression": "A",
               "hide": false,
@@ -180,7 +252,7 @@
             {
               "datasource": {
                 "type": "svennergr-hackerone-datasource",
-                "uid": "kB9HiKR4z"
+                "uid": "${DS_HACKERONE-DATASOURCE}"
               },
               "hide": true,
               "refId": "A",
@@ -188,9 +260,8 @@
             },
             {
               "datasource": {
-                "name": "Expression",
                 "type": "__expr__",
-                "uid": "__expr__"
+                "uid": "${DS_EXPRESSION}"
               },
               "expression": "A",
               "hide": false,
@@ -239,8 +310,9 @@
               "name"
             ],
             "legend": {
-              "displayMode": "hidden",
+              "displayMode": "list",
               "placement": "right",
+              "showLegend": false,
               "values": []
             },
             "pieType": "pie",
@@ -261,7 +333,7 @@
             {
               "datasource": {
                 "type": "svennergr-hackerone-datasource",
-                "uid": "kB9HiKR4z"
+                "uid": "${DS_HACKERONE-DATASOURCE}"
               },
               "hide": true,
               "refId": "A",
@@ -269,9 +341,8 @@
             },
             {
               "datasource": {
-                "name": "Expression",
                 "type": "__expr__",
-                "uid": "__expr__"
+                "uid": "${DS_EXPRESSION}"
               },
               "expression": "A",
               "hide": false,
@@ -285,7 +356,7 @@
             {
               "datasource": {
                 "type": "svennergr-hackerone-datasource",
-                "uid": "kB9HiKR4z"
+                "uid": "${DS_HACKERONE-DATASOURCE}"
               },
               "hide": true,
               "refId": "C",
@@ -293,9 +364,8 @@
             },
             {
               "datasource": {
-                "name": "Expression",
                 "type": "__expr__",
-                "uid": "__expr__"
+                "uid": "${DS_EXPRESSION}"
               },
               "expression": "C",
               "hide": false,
@@ -362,7 +432,7 @@
             {
               "datasource": {
                 "type": "svennergr-hackerone-datasource",
-                "uid": "kB9HiKR4z"
+                "uid": "${DS_HACKERONE-DATASOURCE}"
               },
               "hide": true,
               "refId": "A",
@@ -370,9 +440,8 @@
             },
             {
               "datasource": {
-                "name": "Expression",
                 "type": "__expr__",
-                "uid": "__expr__"
+                "uid": "${DS_EXPRESSION}"
               },
               "expression": "A",
               "hide": false,
@@ -385,9 +454,8 @@
             },
             {
               "datasource": {
-                "name": "Expression",
                 "type": "__expr__",
-                "uid": "__expr__"
+                "uid": "${DS_EXPRESSION}"
               },
               "expression": "A",
               "hide": false,
@@ -464,7 +532,8 @@
             "legend": {
               "calcs": [],
               "displayMode": "list",
-              "placement": "bottom"
+              "placement": "bottom",
+              "showLegend": true
             },
             "tooltip": {
               "mode": "single",
@@ -476,7 +545,7 @@
             {
               "datasource": {
                 "type": "svennergr-hackerone-datasource",
-                "uid": "kB9HiKR4z"
+                "uid": "${DS_HACKERONE-DATASOURCE}"
               },
               "hide": false,
               "refId": "A",
@@ -538,7 +607,8 @@
             "legend": {
               "calcs": [],
               "displayMode": "list",
-              "placement": "bottom"
+              "placement": "bottom",
+              "showLegend": true
             },
             "orientation": "auto",
             "showValue": "always",
@@ -554,7 +624,7 @@
             {
               "datasource": {
                 "type": "svennergr-hackerone-datasource",
-                "uid": "kB9HiKR4z"
+                "uid": "${DS_HACKERONE-DATASOURCE}"
               },
               "hide": true,
               "refId": "A",
@@ -562,9 +632,8 @@
             },
             {
               "datasource": {
-                "name": "Expression",
                 "type": "__expr__",
-                "uid": "__expr__"
+                "uid": "${DS_EXPRESSION}"
               },
               "downsampler": "sum",
               "expression": "A",
@@ -641,8 +710,9 @@
               "calcs": [
                 "sum"
               ],
-              "displayMode": "hidden",
-              "placement": "bottom"
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
             },
             "tooltip": {
               "mode": "single",
@@ -653,7 +723,7 @@
             {
               "datasource": {
                 "type": "svennergr-hackerone-datasource",
-                "uid": "kB9HiKR4z"
+                "uid": "${DS_HACKERONE-DATASOURCE}"
               },
               "hide": true,
               "refId": "A",
@@ -728,7 +798,8 @@
             "legend": {
               "calcs": [],
               "displayMode": "list",
-              "placement": "bottom"
+              "placement": "bottom",
+              "showLegend": true
             },
             "tooltip": {
               "mode": "single",
@@ -740,7 +811,7 @@
             {
               "datasource": {
                 "type": "svennergr-hackerone-datasource",
-                "uid": "kB9HiKR4z"
+                "uid": "${DS_HACKERONE-DATASOURCE}"
               },
               "hide": false,
               "refId": "A",
@@ -828,12 +899,12 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.1.0-pre",
+      "pluginVersion": "9.2.0-pre",
       "targets": [
         {
           "datasource": {
             "type": "svennergr-hackerone-datasource",
-            "uid": "kB9HiKR4z"
+            "uid": "${DS_HACKERONE-DATASOURCE}"
           },
           "refId": "A",
           "type": "reports"
@@ -845,7 +916,7 @@
     }
   ],
   "refresh": false,
-  "schemaVersion": 36,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -859,6 +930,6 @@
   "timezone": "",
   "title": "Hackerone",
   "uid": "kgWLRq67z",
-  "version": 12,
+  "version": 14,
   "weekStart": ""
 }
