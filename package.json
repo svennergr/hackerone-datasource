@@ -1,6 +1,6 @@
 {
   "name": "svennergr-hackerone-datasource",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Plugin to import HackerOne information into Grafana.",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
