@@ -9,4 +9,4 @@ require (
 
 )
 
-replace github.com/liamg/hackerone => /Users/sven/repos/hackerone-api-client
+replace github.com/liamg/hackerone => github.com/svennergr/hackerone-api-client v0.0.8-0.20220830190516-7c9efbf825c2
