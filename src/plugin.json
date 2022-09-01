@@ -27,7 +27,7 @@
         "url": "https://github.com/svennergr/hackerone-datasource/blob/main/LICENSE"
       }
     ],
-    "screenshots": [],
+    "screenshots": [{ "name": "main", "path": "img/screenshot.png" }],
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
